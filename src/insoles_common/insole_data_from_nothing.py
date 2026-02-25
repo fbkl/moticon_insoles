@@ -42,12 +42,16 @@ class InsoleDataFromNothing(InsoleDataGetter):
         return True
 
     def get_data(self):
+        #rospy.logwarn("called get_data!")
         if not self.start_time:
+            rospy.logwarn("start time was not set!")
             self.set_start_time()
         
         self.i+=1
+        #self._last_time = rospy.Time.now().to_sec()
+        #rospy.logwarn("called get_data! doing something")
         
-        frame_msg = {"Frame":self.start_frame[self.i%2]+self.i*5,
+        frame_msg = {"Frame": int((rospy.Time.now().to_sec()-self.start_time)*1000), #self.start_frame[self.i%2]+self.i*5,
                     "side":self.i%2,
                     "acc1":0,
                     "acc2":0,
@@ -59,6 +63,7 @@ class InsoleDataFromNothing(InsoleDataGetter):
                     "cop1":0,
                     "cop2":0,
                     }
+        #rospy.logwarn("called get_data! doing something else")
         #print(frame_msg)
         def get_prop(props): ## If I try to access a property that was not saved I get a key error. Since you can disable pressure sensors
             ##and accelerometers and still have useful insole data, we better check if that was saved or not. 
@@ -72,7 +77,10 @@ class InsoleDataFromNothing(InsoleDataGetter):
                 return tuple([float(frame_msg.get(key)) for key in props])
 
         msg_time            = int(get_prop(["Frame"]))
+        #rospy.logwarn("in get_data, defined get_prop")
         if msg_time == 0: ## there is a weird incomplete message, I think it is a status message, that crashes the saver. it doesn't show up very often so it is hard to debug. 
+            rospy.logerr("called get_data! but the msg_time is zero!!!!!!!")
+            
             return
         side                = int(get_prop(["side"]))
         msg_total_force     = get_prop(["totalForce"])
@@ -80,8 +88,11 @@ class InsoleDataFromNothing(InsoleDataGetter):
         msg_ang             = get_prop(["ang1","ang2","ang3"])   
         msg_acc             = get_prop(["acc1","acc2","acc3"]) 
         msg_pres            = get_prop(self.sensors) # P1...P16
+        ##print("I am running!")
         self.rate.sleep()
-        return None, msg_time, side, msg_pres, msg_acc, msg_ang, msg_total_force, msg_cop 
+        a = None, msg_time, side, msg_pres, msg_acc, msg_ang, msg_total_force, msg_cop 
+        #rospy.logwarn(a)
+        return a 
 
     def close(self):
         pass

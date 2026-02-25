@@ -39,7 +39,7 @@ class BetterRate:
         #rospy.loginfo(f"\ninitial_time: {self.initial_time}\nlocal_initial_time:{local_initial_time}\ntime_now= {time_now}\nrunning_time:{running_time}\nrunning_frequency: {running_frequency} ")
         if float(running_frequency) < self.frequency_slow:
             self.freq_fast_rate.sleep()
-            rospy.logwarn("runnning late.")
+            rospy.logwarn_throttle(1,f"runnning late. running frequency is {running_frequency} and i was expecting at least {self.frequency_slow}")
             # but the other frequency didnt run, se we need to reset their last time
             self.freq_slow_rate.last_time = self.freq_fast_rate.last_time
         else:
